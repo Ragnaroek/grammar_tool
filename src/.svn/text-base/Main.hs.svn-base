@@ -1,0 +1,41 @@
+module Main 
+where
+
+import Grammar.Parser
+import Grammar.GFA
+import Grammar.Grammar
+import Grammar.LL
+import Grammar.Generator
+import qualified Data.Map as M
+import qualified Data.Set as S
+
+
+path = "/media/New Volume/Daten/workspace_cc/mini-java-c/"
+--path = "/Users/mweier2s/CompilerConstruction/Project/svn/trunk/"
+--"/Users/mb/mbEigeneDateien/Projekte/MiniJavaC/"
+
+--testfile = "/Users/mb/grammar_test.gf"
+--testfile3 = "/Users/mb/mbEigeneDateien/Projekte/MiniJavaC/tools/grammar_tool/testfiles/Ex2_3.gf"
+--testfile4 = "/Users/mb/mbEigeneDateien/Projekte/MiniJavaC/tools/grammar_tool/testfiles/Test2.gf"
+
+
+minijava = path ++ "tools/grammar_tool/testfiles/grammar.gf" 
+
+main :: IO ()
+main = do
+    input <- readFile minijava
+    let grammar = case (parseGF input) of
+                    Left e -> (error (show e))
+                    Right g -> g
+    let fi = first 2 grammar
+    let fo = follow 2 fi grammar
+    --print fi
+    --print fo
+    writeFile "./conflicts.txt" $ conflicts $ isSLL 2 grammar fi fo
+    let code = genCParser grammar (fifo fi fo 2)
+    writeFile "./testcode.c" code
+
+
+conflicts :: Answer LLAnswer -> String
+conflicts y@Yes = show y
+conflicts (No l) = unlines $ map (\(p1,p2,_) -> show p1 ++ "<-/->" ++ show p2) l
