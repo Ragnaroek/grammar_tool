@@ -1,4 +1,4 @@
-== Scope ==
+# Scope
 
 grammar_tool is a very basic program to check whether a given grammar
 is in the LL(n) class.
